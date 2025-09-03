@@ -2,15 +2,23 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Install dependencies (cached by Docker layer when package files unchanged)
+# Copy package files
 COPY apps/staff-web/package*.json ./
+
+# Install dependencies
 RUN npm install
 
-# Copy source
+# Copy app source
 COPY apps/staff-web/ .
 
-EXPOSE 3002
+# Build the application
+RUN npm run build
 
-# Default to production static server; in UAT we override the command to use dev with HMR via compose
-RUN npm run build || true
-CMD ["npx", "serve", "-s", "dist", "-l", "3002"]
+# Install serve for production
+RUN npm install -g serve@14.2.3
+
+# Expose port
+EXPOSE 3000
+
+# Start production server
+CMD ["serve", "-s", "dist", "-l", "3000"]

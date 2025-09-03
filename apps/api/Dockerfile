@@ -13,26 +13,18 @@ RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     postgresql-client \
     ca-certificates \
-    libcairo2 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libgdk-pixbuf-2.0-0 \
-    libffi8 \
-    libxml2 \
-    libxslt1.1 \
-    fonts-dejavu-core \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /app
 
-# Copy and install Python dependencies
+# Copy and install Python dependencies from correct path when building from git root
 COPY apps/api/requirements.txt apps/api/requirements-dev.txt ./
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements-dev.txt
 
-# Copy the rest of the application code
+# Copy the rest of the application code from correct path when building from git root
 COPY apps/api/ .
 
 # Expose the port the app runs on
