@@ -65,3 +65,21 @@ CORS_ALLOWED_ORIGINS = [
 
 print("🔧 EXPLICIT CORS ORIGINS SET FOR UAT")
 print(f"📋 CORS_ALLOWED_ORIGINS: {CORS_ALLOWED_ORIGINS}")
+
+# FIX LOGGING CONFIGURATION FOR CONTAINER
+import logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
+
+print("🔧 LOGGING CONFIGURATION FIXED FOR CONTAINER")
