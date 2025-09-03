@@ -1,0 +1,26 @@
+{
+  "name": "@spoton/monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:portal": "cd apps/portal-web && npm run dev",
+    "dev:staff": "cd apps/staff-web && npm run dev",
+    "build:web": "cd apps/web && npm run build",
+    "build:portal": "cd apps/portal-web && npm run build",
+    "build:staff": "cd apps/staff-web && npm run build",
+    "install-all": "npm install && cd apps/web && npm install && cd ../portal-web && npm install && cd ../staff-web && npm install && cd ../..",
+    "clean": "rm -rf node_modules apps/*/node_modules"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "eslint": "^9.32.0",
+    "eslint-plugin-react": "^7.37.5"
+  }
+}

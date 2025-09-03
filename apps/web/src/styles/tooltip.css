@@ -1,0 +1,17 @@
+/* Enhanced Tooltip Styles */
+[role="tooltip"].datepicker-tooltip {
+  position: absolute;
+  z-index: 9999;
+  transform: translateY(8px);
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 1px solid #475569;
+  border-radius: 0.5rem;
+  padding: 6px 6px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  max-width: 225px;
+  white-space: normal;
+  word-wrap: break-word;
+  backdrop-filter: blur(10px);
+  color: #e2e8f0;
+  font-weight: 500;
+}

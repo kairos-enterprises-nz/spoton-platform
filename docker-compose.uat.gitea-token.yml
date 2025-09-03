@@ -1,0 +1,38 @@
+version: '3.8'
+
+# UAT Environment - Builds from Gitea Repository using Personal Access Token
+# This compose file ensures containers are built from the current correct code in Gitea
+
+services:
+  # Django API Backend - Built from Gitea via HTTPS + Token
+  api:
+    build:
+      context: https://arun:a24332df75411e7c07fa6adae562679b692ad71b@git.kairosenterprises.co.nz/KairosEnterprises/spoton-platform.git#main
+      dockerfile: apps/api/Dockerfile
+    container_name: spoton-uat-api-gitea
+    restart: unless-stopped
+    environment:
+      - DJANGO_SETTINGS_MODULE=utilitybyte.settings_uat
+      - DATABASE_URL=postgresql://spoton_uat:spoton_uat_password_2024@spoton-uat-db:5432/spoton_uat
+      - REDIS_URL=redis://spoton-uat-redis:6379/0
+      - KEYCLOAK_SERVER_URL=https://auth.kairosenterprises.co.nz
+      - KEYCLOAK_REALM=master
+      - KEYCLOAK_CLIENT_ID=spoton-uat
+      - KEYCLOAK_CLIENT_SECRET=spoton-uat-secret
+      - VITE_KEYCLOAK_URL=https://auth.kairosenterprises.co.nz
+    expose:
+      - "8000"
+    volumes:
+      - uat_api_media:/app/media
+      - uat_api_static:/app/staticfiles
+    depends_on:
+      - db
+      - redis
+    networks:
+      - caddy_net
+      - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

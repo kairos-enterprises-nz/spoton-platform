@@ -1,0 +1,128 @@
+# ETL Transform Mappings Configuration
+# Maps transform templates to SQL files with version-aware processing
+
+transforms:
+  # HERM (Half Hour Element Register Meter) Generic Transform
+  herm_generic:
+    sql_file: "herm_generic.sql"
+    description: "Generic HERM format processing for AMS/SMCO providers"
+    supported_versions: [1, 2]
+    target_tables:
+      - "meter_read_daily"
+      - "meter_read_interval"
+    parameters:
+      - "file_version"
+      - "provider"
+      - "file_name"
+      - "import_ts"
+    
+  # EIEP3 (Electricity Information Exchange Protocol 3) Transform
+  eiep3_generic:
+    sql_file: "eiep3_generic.sql"
+    description: "EIEP3 format processing for commercial/industrial data"
+    supported_versions: [3, 3.1]
+    target_tables:
+      - "meter_read_interval"
+    parameters:
+      - "file_version"
+      - "provider"
+      - "file_name"
+      - "import_ts"
+    
+  # BlueCurrent Mass Market Daily Transform
+  bcmm_daily:
+    sql_file: "bcmm_daily.sql"
+    description: "BlueCurrent mass market daily register reads"
+    supported_versions: [1]
+    target_tables:
+      - "meter_read_daily"
+    parameters:
+      - "provider"
+      - "file_name"
+      - "import_ts"
+    
+  # SmartCo Daily Transform
+  smco_daily:
+    sql_file: "smco_daily.sql"
+    description: "SmartCo daily register reads"
+    supported_versions: [1]
+    target_tables:
+      - "meter_read_daily"
+    parameters:
+      - "provider"
+      - "file_name"
+      - "import_ts"
+    
+  # Intellihub Daily Transform
+  intellihub_daily:
+    sql_file: "intellihub_daily.sql"
+    description: "Intellihub daily meter readings"
+    supported_versions: [1]
+    target_tables:
+      - "meter_read_daily"
+    parameters:
+      - "provider"
+      - "file_name"
+      - "import_ts"
+    
+  # Intellihub Interval Transform
+  intellihub_interval:
+    sql_file: "intellihub_interval.sql"
+    description: "Intellihub interval meter readings"
+    supported_versions: [1]
+    target_tables:
+      - "meter_read_interval"
+    parameters:
+      - "provider"
+      - "file_name"
+      - "import_ts"
+    
+  # Influx Daily Transform
+  influx_daily:
+    sql_file: "influx_daily.sql"
+    description: "Influx daily meter readings"
+    supported_versions: [1]
+    target_tables:
+      - "meter_read_daily"
+    parameters:
+      - "provider"
+      - "file_name"
+      - "import_ts"
+    
+  # Influx Interval Transform
+  influx_interval:
+    sql_file: "influx_interval.sql"
+    description: "Influx interval meter readings"
+    supported_versions: [1]
+    target_tables:
+      - "meter_read_interval"
+    parameters:
+      - "provider"
+      - "file_name"
+      - "import_ts"
+
+# Transform execution settings
+execution:
+  # Jinja2 template settings
+  jinja_settings:
+    trim_blocks: true
+    lstrip_blocks: true
+    keep_trailing_newline: true
+  
+  # SQL execution settings
+  sql_settings:
+    autocommit: false
+    isolation_level: "READ_COMMITTED"
+    statement_timeout: "30min"
+    
+  # Error handling
+  error_handling:
+    continue_on_warning: true
+    rollback_on_error: true
+    max_error_rows: 100
+    
+  # Performance settings
+  performance:
+    batch_size: 1000
+    parallel_workers: 2
+    memory_limit_mb: 512 
