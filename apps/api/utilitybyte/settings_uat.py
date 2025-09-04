@@ -66,20 +66,40 @@ CORS_ALLOWED_ORIGINS = [
 print("🔧 EXPLICIT CORS ORIGINS SET FOR UAT")
 print(f"📋 CORS_ALLOWED_ORIGINS: {CORS_ALLOWED_ORIGINS}")
 
-# FIX LOGGING CONFIGURATION FOR CONTAINER
+# COMPLETELY OVERRIDE LOGGING CONFIGURATION FOR CONTAINER
 import logging
+
+# Clear any existing logging configuration
+LOGGING_CONFIG = None
+
+# Set up simple console-only logging
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,  # Disable all existing loggers
+    'formatters': {
+        'simple': {
+            'format': '{levelname} {asctime} {name} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
     },
     'root': {
         'handlers': ['console'],
         'level': 'INFO',
     },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
 }
 
-print("🔧 LOGGING CONFIGURATION FIXED FOR CONTAINER")
+print("🔧 LOGGING CONFIGURATION COMPLETELY OVERRIDDEN FOR CONTAINER")
