@@ -1,8 +1,5 @@
 version: '3.8'
 
-# UAT Environment - Builds from Gitea Repository using Personal Access Token
-# This compose file ensures containers are built from the current correct code in Gitea
-
 services:
   # Django API Backend - Built from Gitea via HTTPS + Token
   api:
@@ -13,13 +10,19 @@ services:
     restart: unless-stopped
     environment:
       - DJANGO_SETTINGS_MODULE=utilitybyte.settings_uat
-      - DATABASE_URL=postgresql://spoton_uat:spoton_uat_password_2024@spoton-uat-db:5432/spoton_uat
+      - DEBUG=0
+      - ENVIRONMENT=uat
+      - SECRET_KEY=spoton-uat-secret-key-2024
+      - DB_HOST=spoton-uat-db
+      - DB_PORT=5432
+      - DB_NAME=spoton_uat
+      - DB_USER=spoton_uat
+      - DB_PASSWORD=spoton_uat_password_2024
       - REDIS_URL=redis://spoton-uat-redis:6379/0
       - KEYCLOAK_SERVER_URL=https://auth.kairosenterprises.co.nz
       - KEYCLOAK_REALM=master
       - KEYCLOAK_CLIENT_ID=spoton-uat
       - KEYCLOAK_CLIENT_SECRET=spoton-uat-secret
-      - VITE_KEYCLOAK_URL=https://auth.kairosenterprises.co.nz
     expose:
       - "8000"
     volumes:
@@ -36,3 +39,115 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  # Marketing Website - Built from Gitea via HTTPS + Token
+  web:
+    build:
+      context: https://arun:a24332df75411e7c07fa6adae562679b692ad71b@git.kairosenterprises.co.nz/KairosEnterprises/spoton-platform.git#main
+      dockerfile: apps/web/Dockerfile
+    container_name: spoton-uat-web-gitea
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://uat-api.spoton.co.nz
+      - VITE_KEYCLOAK_URL=https://auth.kairosenterprises.co.nz
+    networks:
+      - caddy_net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Portal Web App - Built from Gitea via HTTPS + Token
+  portal-web:
+    build:
+      context: https://arun:a24332df75411e7c07fa6adae562679b692ad71b@git.kairosenterprises.co.nz/KairosEnterprises/spoton-platform.git#main
+      dockerfile: apps/portal-web/Dockerfile
+    container_name: spoton-uat-portal-web-gitea
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://uat-api.spoton.co.nz
+      - VITE_KEYCLOAK_URL=https://auth.kairosenterprises.co.nz
+    networks:
+      - caddy_net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Staff Web App - Built from Gitea via HTTPS + Token
+  staff-web:
+    build:
+      context: https://arun:a24332df75411e7c07fa6adae562679b692ad71b@git.kairosenterprises.co.nz/KairosEnterprises/spoton-platform.git#main
+      dockerfile: apps/staff-web/Dockerfile
+    container_name: spoton-uat-staff-web-gitea
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=https://uat-api.spoton.co.nz
+      - VITE_KEYCLOAK_URL=https://auth.kairosenterprises.co.nz
+    networks:
+      - caddy_net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Database
+  db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: spoton-uat-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=spoton_uat
+      - POSTGRES_USER=spoton_uat
+      - POSTGRES_PASSWORD=spoton_uat_password_2024
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - uat_db_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spoton_uat -d spoton_uat"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: spoton-uat-redis
+    restart: unless-stopped
+    volumes:
+      - uat_redis_data:/data
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  uat_db_data:
+  uat_redis_data:
+  uat_api_media:
+  uat_api_static:
+
+networks:
+  caddy_net:
+    external: true
+  default:
+    driver: bridge

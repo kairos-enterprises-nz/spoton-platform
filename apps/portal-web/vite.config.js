@@ -1,13 +1,9 @@
 import { defineConfig } from 'vite'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  const __filename = fileURLToPath(import.meta.url)
-  const __dirname = path.dirname(__filename)
   const isProduction = mode === 'production'
   const isUAT = process.env.VITE_ENVIRONMENT === 'uat'
   const isLive = process.env.VITE_ENVIRONMENT === 'live'
@@ -59,11 +55,6 @@ export default defineConfig(({ mode }) => {
             auth: ['keycloak-js']  // jwt-decode removed
           }
         }
-      }
-    },
-    resolve: {
-      alias: {
-        '@spoton/ui': path.resolve(__dirname, '../../../packages/ui/src')
       }
     },
     define: {
