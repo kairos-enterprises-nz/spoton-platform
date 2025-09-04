@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
 
 # Set the working directory
 WORKDIR /app
+RUN mkdir -p logs
 
 # Copy and install Python dependencies from correct path when building from git root
 COPY apps/api/requirements.txt apps/api/requirements-dev.txt ./
