@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Silent SSO Check</title>
+    <script>
+        parent.postMessage(location.href, location.origin);
+    </script>
+</head>
+<body>
+    <!-- This page is used by Keycloak to silently check if the user is authenticated -->
+    <!-- It should be empty and just post a message back to the parent window -->
+</body>
+</html> 

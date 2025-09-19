@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  spoton-staff-uat:
+    image: ghcr.io/your-org/spoton-platform-staff:${IMAGE_TAG:-uat-latest}
+    networks:
+      - edge_net
+    expose:
+      - "80"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=https://uat.api.spoton.co.nz
+      - VITE_WEB_URL=https://uat.spoton.co.nz
+      - VITE_PORTAL_URL=https://uat.portal.spoton.co.nz
+      - VITE_STAFF_URL=https://uat.staff.spoton.co.nz
+      - VITE_KEYCLOAK_URL=https://auth.spoton.co.nz
+      - VITE_KEYCLOAK_REALM=spoton-uat
+      - VITE_KEYCLOAK_CLIENT_ID=staff-uat-portal
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  edge_net:
+    external: true
+    name: edge_net

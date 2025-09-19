@@ -1,0 +1,246 @@
+
+services:
+  # === LIVE PRODUCTION ENVIRONMENT ===
+  
+  # Django API Backend
+  api:
+    build: 
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: spoton-live-api
+    expose:
+      - "8000"
+    env_file:
+      - ./apps/api/.env.live
+    environment:
+      - DEBUG=0
+      - ENVIRONMENT=live
+      - DB_NAME=spoton_live
+      - DB_USER=spoton_live_user
+      - DB_PASSWORD=spoton_live_password
+      - DB_HOST=spoton-live-db
+      - DB_PORT=5432
+      - KEYCLOAK_SERVER_URL=https://auth.spoton.co.nz
+      - KEYCLOAK_REALM=spoton-prod
+      - KEYCLOAK_CLIENT_ID=customer-live-portal
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+      - KEYCLOAK_CLIENT_SECRET_LIVE=${KEYCLOAK_CLIENT_SECRET_LIVE:-${KEYCLOAK_CLIENT_SECRET}}
+      - KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
+      - KEYCLOAK_ADMIN_CLIENT_SECRET=
+      - KEYCLOAK_ADMIN_USERNAME=admin
+      - KEYCLOAK_ADMIN_PASSWORD=spoton_keycloak_admin_2024
+      - CORS_ALLOWED_ORIGINS=https://live.spoton.co.nz,https://portal.spoton.co.nz,https://staff.spoton.co.nz
+    volumes:
+      - ./apps/api:/app
+      - ./apps/api/logs:/app/logs
+    command: >
+      sh -c "mkdir -p /app/logs &&
+             python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             gunicorn utilitybyte.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+    depends_on:
+      - db
+    networks:
+      - caddy_net
+      - spoton_live_network
+
+  # Marketing Website (Live)
+  web:
+    build:
+      context: ./apps/web
+    container_name: spoton-live-web
+    restart: unless-stopped
+    environment:
+      - VITE_API_BASE_URL=https://api.spoton.co.nz
+      - VITE_PORTAL_URL=https://portal.spoton.co.nz
+      - VITE_STAFF_URL=https://staff.spoton.co.nz
+      - VITE_WEB_URL=https://live.spoton.co.nz
+      - VITE_ENVIRONMENT=live
+      - NODE_ENV=production
+      - VITE_KEYCLOAK_URL=https://auth.spoton.co.nz
+      - VITE_KEYCLOAK_REALM=spoton-prod
+      - VITE_KEYCLOAK_CLIENT_ID=customer-live-portal
+    networks:
+      - caddy_net
+      - spoton_live_network
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Customer Portal (Live)
+  portal-web:
+    build:
+      context: ./apps/portal-web
+    container_name: spoton-live-portal-web
+    restart: unless-stopped
+    environment:
+      - VITE_API_BASE_URL=https://api.spoton.co.nz
+      - VITE_PORTAL_URL=https://portal.spoton.co.nz
+      - VITE_STAFF_URL=https://staff.spoton.co.nz
+      - VITE_WEB_URL=https://live.spoton.co.nz
+      - VITE_ENVIRONMENT=live
+      - NODE_ENV=production
+      - VITE_KEYCLOAK_URL=https://auth.spoton.co.nz
+      - VITE_KEYCLOAK_REALM=spoton-prod
+      - VITE_KEYCLOAK_CLIENT_ID=customer-live-portal
+    networks:
+      - caddy_net
+      - spoton_live_network
+    expose:
+      - "3001"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:3001 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Staff Portal (Live)
+  staff-web:
+    build:
+      context: ./apps/staff-web
+    container_name: spoton-live-staff-web
+    restart: unless-stopped
+    environment:
+      - VITE_API_BASE_URL=https://api.spoton.co.nz
+      - VITE_PORTAL_URL=https://portal.spoton.co.nz
+      - VITE_STAFF_URL=https://staff.spoton.co.nz
+      - VITE_WEB_URL=https://live.spoton.co.nz
+      - VITE_ENVIRONMENT=live
+      - NODE_ENV=production
+      - VITE_KEYCLOAK_URL=https://auth.spoton.co.nz
+      - VITE_KEYCLOAK_REALM=spoton-staff
+      - VITE_KEYCLOAK_CLIENT_ID=staff-live-portal
+    networks:
+      - caddy_net
+      - spoton_live_network
+    expose:
+      - "3002"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:3002 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL Database (Live)
+  db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: spoton-live-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: spoton_live
+      POSTGRES_USER: spoton_live_user
+      POSTGRES_PASSWORD: spoton_live_password
+      TZ: Pacific/Auckland
+    volumes:
+      - /media/arun-kumar/2974a690-b1f3-4934-8a72-6d135e1c3b95/databases/live:/var/lib/postgresql/data
+    # ports removed to keep DB internal-only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spoton_live_user -d spoton_live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Airflow Webserver (Live)
+  airflow-webserver:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.airflow
+    container_name: spoton-live-airflow-webserver
+    restart: unless-stopped
+    env_file:
+      - ./apps/api/.env.live
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://spoton_live_user:spoton_live_password@db:5432/spoton_live
+      - AIRFLOW__CORE__DAGS_FOLDER=/app/airflow/dags
+      - AIRFLOW__CORE__PLUGINS_FOLDER=/app/airflow/plugins
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=true
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CORE__FERNET_KEY=ZmDfcTF7_60GrrY167zsiPd67pEvs0aGOv2oasOM1Pg=
+      - AIRFLOW_CONN_UTILITYBYTE_DEFAULT=postgresql://spoton_live_user:spoton_live_password@db:5432/spoton_live
+      # OIDC Authentication Configuration
+      - AIRFLOW__WEBSERVER__AUTHENTICATE=True
+      - AIRFLOW__WEBSERVER__AUTH_BACKEND=airflow.contrib.auth.backends.generic_oauth
+      - AIRFLOW__WEBSERVER__OAUTH_PROVIDERS=[{"name":"keycloak","token_key":"access_token","icon":"fa-key","remote_app":{"client_id":"airflow-live-client","client_secret":"AIRFLOW_LIVE_CLIENT_SECRET_PLACEHOLDER","server_metadata_url":"https://auth.spoton.co.nz/realms/spoton-staff/.well-known/openid_configuration","client_kwargs":{"scope":"openid email profile"}}}]
+    command: airflow webserver
+    volumes:
+      - ./apps/api:/app
+      - /media/arun-kumar/2974a690-b1f3-4934-8a72-6d135e1c3b95/live/airflow-logs:/opt/airflow/logs
+    networks:
+      - caddy_net
+      - spoton_live_network
+    expose:
+      - "8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Airflow Scheduler (Live)
+  airflow-scheduler:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.airflow
+    container_name: spoton-live-airflow-scheduler
+    restart: unless-stopped
+    env_file:
+      - ./apps/api/.env.live
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://spoton_live_user:spoton_live_password@db:5432/spoton_live
+      - AIRFLOW__CORE__DAGS_FOLDER=/app/airflow/dags
+      - AIRFLOW__CORE__PLUGINS_FOLDER=/app/airflow/plugins
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CORE__FERNET_KEY=ZmDfcTF7_60GrrY167zsiPd67pEvs0aGOv2oasOM1Pg=
+      - AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL=30
+      - AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT=60
+      - AIRFLOW_CONN_UTILITYBYTE_DEFAULT=postgresql://spoton_live_user:spoton_live_password@db:5432/spoton_live
+    command: airflow scheduler
+    volumes:
+      - ./apps/api:/app
+      - /media/arun-kumar/2974a690-b1f3-4934-8a72-6d135e1c3b95/live/airflow-logs:/opt/airflow/logs
+    networks:
+      - spoton_live_network
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $$(hostname)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis (Live)
+  redis:
+    image: redis:7-alpine
+    container_name: spoton-live-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-live_redis_password}
+    volumes:
+      - /media/arun-kumar/2974a690-b1f3-4934-8a72-6d135e1c3b95/live/redis:/data
+    networks:
+      - spoton_live_network
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --raw incr ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+networks:
+  caddy_net:
+    external: true
+    name: caddy_net
+  spoton_live_network:
+    name: spoton_live_network
+    driver: bridge
+
+volumes:
+  spoton_live_static: 

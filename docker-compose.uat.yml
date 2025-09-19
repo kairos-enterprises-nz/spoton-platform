@@ -1,0 +1,274 @@
+services:
+  # === UAT TESTING ENVIRONMENT ===
+  
+  # Django API Backend
+  api:
+    build: 
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: spoton-uat-api
+    expose:
+      - "8000"
+    # env_file:
+      # - ./apps/api/.env.uat  # File doesn't exist, using environment vars instead
+    environment:
+      - DEBUG=1
+      - ENVIRONMENT=uat
+      - DJANGO_SETTINGS_MODULE=utilitybyte.settings_uat
+      - SECRET_KEY=uat-secret-key-for-testing-only-not-production
+      - DB_NAME=spoton_uat
+      - DB_USER=spoton_uat_user
+      - DB_PASSWORD=spoton_uat_password
+      - DB_HOST=spoton-uat-db
+      - DB_PORT=5432
+      - KEYCLOAK_SERVER_URL=http://core-keycloak:8080
+      - KEYCLOAK_REALM=spoton-uat
+      - KEYCLOAK_CLIENT_ID=customer-uat-portal
+      - KEYCLOAK_CLIENT_SECRET=
+      - KEYCLOAK_CLIENT_SECRET_UAT=TZ93TTNVLvzbEpOYpoZBozhbm91WR7Ke
+      - KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
+      - KEYCLOAK_ADMIN_CLIENT_SECRET=
+      - KEYCLOAK_ADMIN_USERNAME=admin
+      - KEYCLOAK_ADMIN_PASSWORD=spoton_keycloak_admin_2024
+      - REDIS_URL=redis://:uat_redis_password@spoton-uat-redis:6379/1
+      - CORS_ALLOWED_ORIGINS=https://uat.spoton.co.nz,https://uat.portal.spoton.co.nz,https://uat.staff.spoton.co.nz,http://localhost:3000,https://localhost:3000,http://127.0.0.1:3000,https://127.0.0.1:3000,http://192.168.1.107:3000,https://192.168.1.107:3000
+      - CORS_ALLOW_ALL_ORIGINS=False
+      - CORS_ALLOW_HEADERS=accept,authorization,content-type,user-agent,x-csrftoken,x-requested-with,origin,referer
+      - CORS_ALLOW_METHODS=GET,POST,PUT,PATCH,DELETE,OPTIONS
+      - CORS_PREFLIGHT_MAX_AGE=86400
+    volumes:
+      - ./apps/api:/app
+      - ./apps/api/logs:/app/logs
+      - /mnt/data-live/uat/invoices:/app/media/invoices
+    command: >
+      sh -c "mkdir -p /app/logs && 
+             python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             gunicorn utilitybyte.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+    depends_on:
+      - db
+    networks:
+      - caddy_net
+      - spoton_uat_network
+
+  # Marketing Website (UAT)
+  web:
+    build:
+      context: ./apps/web
+    container_name: spoton-uat-web
+    restart: unless-stopped
+    environment:
+      - VITE_API_BASE_URL=https://uat.api.spoton.co.nz
+      - VITE_PORTAL_URL=https://uat.portal.spoton.co.nz
+      - VITE_STAFF_URL=https://uat.staff.spoton.co.nz
+      - VITE_WEB_URL=https://uat.spoton.co.nz
+      - VITE_ENVIRONMENT=uat
+      - NODE_ENV=development
+      - VITE_KEYCLOAK_URL=https://auth.spoton.co.nz
+      - VITE_KEYCLOAK_REALM=spoton-uat
+      - VITE_KEYCLOAK_CLIENT_ID=customer-uat-portal
+    # Enable hot-reload: mount source and node_modules caching volume
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+    networks:
+      - caddy_net
+      - spoton_uat_network
+    ports:
+      - "3100:3000"
+    # Run dev server with HMR for UAT hot reload
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Customer Portal (UAT)
+  portal-web:
+    build:
+      context: ./apps/portal-web
+    container_name: spoton-uat-portal-web
+    restart: unless-stopped
+    environment:
+      - VITE_API_BASE_URL=https://uat.api.spoton.co.nz
+      - VITE_PORTAL_URL=https://uat.portal.spoton.co.nz
+      - VITE_STAFF_URL=https://uat.staff.spoton.co.nz
+      - VITE_WEB_URL=https://uat.spoton.co.nz
+      - VITE_ENVIRONMENT=uat
+      - NODE_ENV=development
+      - VITE_KEYCLOAK_URL=https://auth.spoton.co.nz
+      - VITE_KEYCLOAK_REALM=spoton-uat
+      - VITE_KEYCLOAK_CLIENT_ID=customer-uat-portal
+    # Enable hot-reload: mount source and node_modules caching volume
+    volumes:
+      - ./apps/portal-web:/app
+      - /app/node_modules
+    networks:
+      - caddy_net
+      - spoton_uat_network
+    expose:
+      - "3001"
+    # Run dev server with HMR for UAT hot reload
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 3001"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:3001 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Staff Portal (UAT)
+  staff-web:
+    build:
+      context: ./apps/staff-web
+    container_name: spoton-uat-staff-web
+    restart: unless-stopped
+    environment:
+      - VITE_API_BASE_URL=https://uat.api.spoton.co.nz
+      - VITE_PORTAL_URL=https://uat.portal.spoton.co.nz
+      - VITE_STAFF_URL=https://uat.staff.spoton.co.nz
+      - VITE_WEB_URL=https://uat.spoton.co.nz
+      - VITE_ENVIRONMENT=uat
+      - NODE_ENV=development
+      - VITE_KEYCLOAK_URL=https://auth.spoton.co.nz
+      - VITE_KEYCLOAK_REALM=spoton-staff
+      - VITE_KEYCLOAK_CLIENT_ID=staff-uat-portal
+    # Enable hot-reload: mount source and node_modules caching volume
+    volumes:
+      - ./apps/staff-web:/app
+      - /app/node_modules
+    networks:
+      - caddy_net
+      - spoton_uat_network
+    expose:
+      - "3002"
+    # Run dev server with HMR for UAT hot reload
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 3002"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:3002 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL Database (UAT)
+  db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: spoton-uat-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: spoton_uat
+      POSTGRES_USER: spoton_uat_user
+      POSTGRES_PASSWORD: spoton_uat_password
+      TZ: Pacific/Auckland
+    volumes:
+      - /media/arun-kumar/2974a690-b1f3-4934-8a72-6d135e1c3b95/databases/uat:/var/lib/postgresql/data
+    networks:
+      - spoton_uat_network
+    ports:
+      - "5434:5432"  # External access for development
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spoton_uat_user -d spoton_uat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Airflow Webserver (UAT)
+  airflow-webserver:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.airflow
+    container_name: spoton-uat-airflow-webserver
+    restart: unless-stopped
+    env_file:
+      - ./apps/api/.env.uat
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://spoton_uat_user:spoton_uat_password@db:5432/airflow_uat_meta
+      - AIRFLOW__CORE__DAGS_FOLDER=/app/airflow/dags
+      - AIRFLOW__CORE__PLUGINS_FOLDER=/app/airflow/plugins
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=true
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CORE__FERNET_KEY=ZmDfcTF7_60GrrY167zsiPd67pEvs0aGOv2oasOM1Pg=
+      - AIRFLOW_CONN_UTILITYBYTE_DEFAULT=postgresql://spoton_uat_user:spoton_uat_password@db:5432/spoton_uat
+      # OIDC Authentication Configuration
+      - AIRFLOW__WEBSERVER__AUTHENTICATE=True
+      - AIRFLOW__WEBSERVER__AUTH_BACKEND=airflow.contrib.auth.backends.generic_oauth
+      - AIRFLOW__WEBSERVER__OAUTH_PROVIDERS=[{"name":"keycloak","token_key":"access_token","icon":"fa-key","remote_app":{"client_id":"airflow-uat-client","client_secret":"AIRFLOW_UAT_CLIENT_SECRET_PLACEHOLDER","server_metadata_url":"https://auth.spoton.co.nz/realms/spoton-staff/.well-known/openid_configuration","client_kwargs":{"scope":"openid email profile"}}}]
+    command: airflow webserver
+    volumes:
+      - ./apps/api:/app
+      - /media/arun-kumar/2974a690-b1f3-4934-8a72-6d135e1c3b95/uat/airflow-logs:/opt/airflow/logs
+    networks:
+      - caddy_net
+      - spoton_uat_network
+    expose:
+      - "8081"  # Different port from Live
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Airflow Scheduler (UAT)
+  airflow-scheduler:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile.airflow
+    container_name: spoton-uat-airflow-scheduler
+    restart: unless-stopped
+    env_file:
+      - ./apps/api/.env.uat
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://spoton_uat_user:spoton_uat_password@db:5432/airflow_uat_meta
+      - AIRFLOW__CORE__DAGS_FOLDER=/app/airflow/dags
+      - AIRFLOW__CORE__PLUGINS_FOLDER=/app/airflow/plugins
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CORE__FERNET_KEY=ZmDfcTF7_60GrrY167zsiPd67pEvs0aGOv2oasOM1Pg=
+      - AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL=30
+      - AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT=60
+      - AIRFLOW_CONN_UTILITYBYTE_DEFAULT=postgresql://spoton_uat_user:spoton_uat_password@db:5432/spoton_uat
+    command: airflow scheduler
+    volumes:
+      - ./apps/api:/app
+      - /media/arun-kumar/2974a690-b1f3-4934-8a72-6d135e1c3b95/uat/airflow-logs:/opt/airflow/logs
+    networks:
+      - spoton_uat_network
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $$(hostname)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis (UAT)
+  redis:
+    image: redis:7-alpine
+    container_name: spoton-uat-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-uat_redis_password}
+    volumes:
+      - /media/arun-kumar/2974a690-b1f3-4934-8a72-6d135e1c3b95/uat/redis:/data
+    networks:
+      - spoton_uat_network
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --raw incr ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+networks:
+  caddy_net:
+    external: true
+    name: caddy_net
+  spoton_uat_network:
+    name: spoton_uat_network
+    driver: bridge
+
+volumes:
+  spoton_uat_static: 

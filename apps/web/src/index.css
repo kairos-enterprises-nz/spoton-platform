@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+
+@theme {
+  --color-primary-turquoise: #40E0D0;
+  --color-secondary-darkgray: #364153;
+  --color-accent-lightturquoise: #AEEEEE;
+  --color-accent-blue: #4e80b1;
+  --color-accent-red: #b14e4e;
+  --color-accent-purple: #b14eb1;
+  --color-accent-green: #4eb14e;   
+}
+
+/* === SHIMMER ANIMATION FOR TESTIMONIAL BG === */
+@keyframes shimmer-x {
+  0% {
+    transform: translateX(-50%);
+  }
+  50% {
+    transform: translateX(-40%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer-x 8s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  10% { transform: translateX(-5px); }
+  30% { transform: translateX(5px); }
+  50% { transform: translateX(-5px); }
+  70% { transform: translateX(5px); }
+  90% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+body {
+  font-family: 'Urbanist', Inter, system-ui, sans-serif;
+  line-height: 1.6;
+  background-color: #ffffff;
+  color: #000000;
+  min-height: 100vh;
+  text-align: center;
+  padding: 0;
+}

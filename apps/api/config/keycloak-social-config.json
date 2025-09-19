@@ -1,0 +1,180 @@
+{
+  "realm": "spoton",
+  "socialProviders": {
+    "google": {
+      "alias": "google",
+      "displayName": "Google",
+      "providerId": "google",
+      "enabled": true,
+      "config": {
+        "clientId": "${GOOGLE_CLIENT_ID}",
+        "clientSecret": "${GOOGLE_CLIENT_SECRET}",
+        "syncMode": "IMPORT",
+        "guiOrder": "1"
+      },
+      "mappers": [
+        {
+          "name": "google-email-mapper",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "email",
+            "user.attribute": "email",
+            "syncMode": "INHERIT"
+          }
+        },
+        {
+          "name": "google-first-name-mapper",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "given_name",
+            "user.attribute": "firstName",
+            "syncMode": "INHERIT"
+          }
+        },
+        {
+          "name": "google-last-name-mapper",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "family_name",
+            "user.attribute": "lastName",
+            "syncMode": "INHERIT"
+          }
+        },
+        {
+          "name": "google-verified-email-mapper",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "email_verified",
+            "user.attribute": "emailVerified",
+            "syncMode": "INHERIT"
+          }
+        }
+      ]
+    },
+    "facebook": {
+      "alias": "facebook",
+      "displayName": "Facebook",
+      "providerId": "facebook",
+      "enabled": true,
+      "config": {
+        "clientId": "${FACEBOOK_APP_ID}",
+        "clientSecret": "${FACEBOOK_APP_SECRET}",
+        "syncMode": "IMPORT",
+        "guiOrder": "2"
+      },
+      "mappers": [
+        {
+          "name": "facebook-email-mapper",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "email",
+            "user.attribute": "email",
+            "syncMode": "INHERIT"
+          }
+        },
+        {
+          "name": "facebook-first-name-mapper",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "first_name",
+            "user.attribute": "firstName",
+            "syncMode": "INHERIT"
+          }
+        },
+        {
+          "name": "facebook-last-name-mapper",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "last_name",
+            "user.attribute": "lastName",
+            "syncMode": "INHERIT"
+          }
+        }
+      ]
+    },
+    "github": {
+      "alias": "github",
+      "displayName": "GitHub",
+      "providerId": "github",
+      "enabled": true,
+      "config": {
+        "clientId": "${GITHUB_CLIENT_ID}",
+        "clientSecret": "${GITHUB_CLIENT_SECRET}",
+        "syncMode": "IMPORT",
+        "guiOrder": "3"
+      },
+      "mappers": [
+        {
+          "name": "github-email-mapper",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "email",
+            "user.attribute": "email",
+            "syncMode": "INHERIT"
+          }
+        },
+        {
+          "name": "github-name-mapper",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "name",
+            "user.attribute": "fullName",
+            "syncMode": "INHERIT"
+          }
+        },
+        {
+          "name": "github-username-mapper",
+          "identityProviderMapper": "oidc-user-attribute-idp-mapper",
+          "config": {
+            "claim": "login",
+            "user.attribute": "username",
+            "syncMode": "INHERIT"
+          }
+        }
+      ]
+    }
+  },
+  "userAttributes": [
+    {
+      "name": "emailVerified",
+      "displayName": "Email Verified",
+      "multivalued": false
+    },
+    {
+      "name": "phoneVerified",
+      "displayName": "Phone Verified",
+      "multivalued": false
+    },
+    {
+      "name": "socialProvider",
+      "displayName": "Social Provider",
+      "multivalued": false
+    },
+    {
+      "name": "registrationMethod",
+      "displayName": "Registration Method",
+      "multivalued": false
+    }
+  ],
+  "authenticationFlows": {
+    "socialRegistrationFlow": {
+      "alias": "social-registration-flow",
+      "description": "Flow for social provider registration with custom verification",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "identity-provider-redirector",
+          "requirement": "ALTERNATIVE",
+          "priority": 10
+        },
+        {
+          "authenticator": "auth-username-password-form",
+          "requirement": "ALTERNATIVE",
+          "priority": 20
+        }
+      ]
+    }
+  }
+} 

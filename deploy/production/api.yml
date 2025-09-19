@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  spoton-api-live:
+    image: ghcr.io/your-org/spoton-platform-api:${IMAGE_TAG:-latest}
+    networks:
+      - edge_net
+    expose:
+      - "8000"
+    environment:
+      - DEBUG=0
+      - ENVIRONMENT=live
+      - DB_NAME=spoton_live
+      - DB_USER=spoton_live_user
+      - DB_PASSWORD_FILE=/run/secrets/db_password_live
+      - DB_HOST=spoton-live-db
+      - DB_PORT=5432
+      - KEYCLOAK_SERVER_URL=https://auth.spoton.co.nz
+      - KEYCLOAK_REALM=spoton-prod
+      - KEYCLOAK_CLIENT_ID=customer-live-portal
+      - KEYCLOAK_CLIENT_SECRET_FILE=/run/secrets/keycloak_secret_live
+      - KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
+      - KEYCLOAK_ADMIN_USERNAME=admin
+      - KEYCLOAK_ADMIN_PASSWORD_FILE=/run/secrets/keycloak_admin_password
+      - CORS_ALLOWED_ORIGINS=https://spoton.co.nz,https://portal.spoton.co.nz,https://staff.spoton.co.nz
+      - REDIS_URL=redis://redis:6379/0
+    secrets:
+      - db_password_live
+      - keycloak_secret_live
+      - keycloak_admin_password
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+      placement:
+        max_replicas_per_node: 1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             gunicorn utilitybyte.wsgi:application --bind 0.0.0.0:8000 --workers 3"
+
+secrets:
+  db_password_live:
+    external: true
+  keycloak_secret_live:
+    external: true
+  keycloak_admin_password:
+    external: true
+
+networks:
+  edge_net:
+    external: true
+    name: edge_net

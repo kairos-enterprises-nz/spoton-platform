@@ -1,0 +1,36 @@
+Django==4.2.5
+psycopg2-binary==2.9.7
+django-tenants==3.5.0
+apache-airflow==2.10.3
+apache-airflow-providers-postgres==5.12.0
+apache-airflow-providers-sftp==4.10.0
+apache-airflow-providers-http==4.12.0
+paramiko==3.5.0
+python-decouple==3.8
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.3.0
+PyJWT==2.8.0
+django-cors-headers==4.2.0
+pandas==2.2.1
+openpyxl==3.1.5
+pydantic==2.10.3
+WeasyPrint==63.1
+reportlab==4.2.5
+redis==5.2.1
+requests==2.32.3
+setuptools==75.6.0
+django-filter==24.3
+rapidfuzz==3.10.1
+urllib3<3
+whitenoise==6.9.0
+gunicorn==21.2.0
+httpx==0.25.0
+
+# Keycloak OIDC Integration
+mozilla-django-oidc==4.0.1
+python-keycloak==3.12.0
+# django-allauth==0.61.1  # Removed - using custom Keycloak implementation
+cryptography==42.0.8
+
+# Django development tools (used in UAT/Live settings)
+django-extensions==3.2.3

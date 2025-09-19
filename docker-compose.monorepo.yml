@@ -1,0 +1,127 @@
+version: '3.8'
+
+services:
+  # Marketing Website
+  spoton-web:
+    build: 
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: spoton-web
+    ports:
+      - "3000:3000"
+    environment:
+      # UAT settings (for uat.spoton.co.nz)
+      - VITE_API_URL=http://uat.api.spoton.co.nz
+      - VITE_AUTH_URL=https://auth.spoton.co.nz
+      - VITE_PORTAL_URL=http://uat.portal.spoton.co.nz
+      - VITE_STAFF_URL=http://uat.staff.spoton.co.nz
+      # Live production settings (for live.spoton.co.nz)
+      - VITE_ENVIRONMENT=live
+      - VITE_ENABLE_CONSOLE_LOGS=false
+      - VITE_DEBUG_MODE=false
+      - NODE_ENV=production
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+    command: npm run dev
+    networks:
+      - caddy_net
+
+  # Customer Portal
+  spoton-portal-web:
+    build: 
+      context: ./apps/portal-web
+      dockerfile: Dockerfile
+    container_name: spoton-portal-web
+    ports:
+      - "3001:3001"
+    environment:
+      # UAT settings
+      - VITE_API_URL=http://uat.api.spoton.co.nz
+      - VITE_AUTH_URL=https://auth.spoton.co.nz
+      - VITE_WEB_URL=http://uat.spoton.co.nz
+      # Live production settings
+      - VITE_ENVIRONMENT=live
+      - VITE_ENABLE_CONSOLE_LOGS=false
+      - VITE_DEBUG_MODE=false
+      - NODE_ENV=production
+    volumes:
+      - ./apps/portal-web:/app
+      - /app/node_modules
+    command: npm run dev
+    networks:
+      - caddy_net
+
+  # Staff Portal
+  spoton-staff-web:
+    build: 
+      context: ./apps/staff-web
+      dockerfile: Dockerfile
+    container_name: spoton-staff-web
+    ports:
+      - "3002:3002"
+    environment:
+      # UAT settings
+      - VITE_API_URL=http://uat.api.spoton.co.nz
+      - VITE_AUTH_URL=https://auth.spoton.co.nz
+      - VITE_WEB_URL=http://uat.spoton.co.nz
+      # Live production settings
+      - VITE_ENVIRONMENT=live
+      - VITE_ENABLE_CONSOLE_LOGS=false
+      - VITE_DEBUG_MODE=false
+      - NODE_ENV=production
+    volumes:
+      - ./apps/staff-web:/app
+      - /app/node_modules
+    command: npm run dev
+    networks:
+      - caddy_net
+
+  # Django API
+  spoton-api:
+    build: 
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: spoton-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - ENVIRONMENT=uat
+      - DATABASE_URL=postgresql://spoton_uat_user:spoton_uat_password@db:5432/spoton_uat
+      # Individual database variables for Django
+      - DB_NAME=spoton_uat
+      - DB_USER=spoton_uat_user
+      - DB_PASSWORD=spoton_uat_password
+      - DB_HOST=db
+      - DB_PORT=5432
+      - KEYCLOAK_SERVER_URL=https://auth.spoton.co.nz
+      - KEYCLOAK_REALM=spoton-customers
+      - KEYCLOAK_CLIENT_ID=customer-uat-portal
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+      - CORS_ALLOWED_ORIGINS=http://uat.spoton.co.nz,http://uat.portal.spoton.co.nz,http://uat.staff.spoton.co.nz,https://live.spoton.co.nz,https://portal.spoton.co.nz,https://staff.spoton.co.nz
+    volumes:
+      - ./apps/api:/app
+    depends_on:
+      - db
+    networks:
+      - caddy_net
+
+  # Database (shared)
+  db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: spoton-db
+    environment:
+      - POSTGRES_DB=spoton_uat
+      - POSTGRES_USER=spoton_uat_user
+      - POSTGRES_PASSWORD=spoton_uat_password
+    volumes:
+      - /media/arun-kumar/2974a690-b1f3-4934-8a72-6d135e1c3b95/databases/uat:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - caddy_net
+
+networks:
+  caddy_net:
+    external: true 
