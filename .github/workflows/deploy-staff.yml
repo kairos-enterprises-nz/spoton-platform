@@ -2,7 +2,7 @@ name: Deploy SpotOn Staff
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, uat]
     paths: 
       - 'apps/staff-web/**'
       - 'deploy/**/staff.yml'
@@ -24,7 +24,7 @@ jobs:
             echo "service_name=spoton-staff-live" >> $GITHUB_OUTPUT
           else
             echo "environment=uat" >> $GITHUB_OUTPUT
-            echo "image_tag=develop-${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "image_tag=uat-${{ github.sha }}" >> $GITHUB_OUTPUT
             echo "service_name=spoton-staff-uat" >> $GITHUB_OUTPUT
           fi
           echo "short_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT

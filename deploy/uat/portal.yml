@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   spoton-portal-uat:
-    image: ghcr.io/your-org/spoton-platform-portal:${IMAGE_TAG:-develop-latest}
+    image: ghcr.io/your-org/spoton-platform-portal:${IMAGE_TAG:-uat-latest}
     networks:
       - edge_net
     expose:

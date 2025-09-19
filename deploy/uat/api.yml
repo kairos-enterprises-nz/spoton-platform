@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   spoton-api-uat:
-    image: ghcr.io/your-org/spoton-platform-api:${IMAGE_TAG:-develop-latest}
+    image: ghcr.io/your-org/spoton-platform-api:${IMAGE_TAG:-uat-latest}
     networks:
       - edge_net
     expose:
