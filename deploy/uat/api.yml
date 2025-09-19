@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  spoton-api-uat:
+    image: ghcr.io/your-org/spoton-platform-api:${IMAGE_TAG:-develop-latest}
+    networks:
+      - edge_net
+    expose:
+      - "8000"
+    environment:
+      - DEBUG=1
+      - ENVIRONMENT=uat
+      - DJANGO_SETTINGS_MODULE=utilitybyte.settings_uat
+      - SECRET_KEY_FILE=/run/secrets/django_secret_uat
+      - DB_NAME=spoton_uat
+      - DB_USER=spoton_uat_user
+      - DB_PASSWORD_FILE=/run/secrets/db_password_uat
+      - DB_HOST=spoton-uat-db
+      - DB_PORT=5432
+      - KEYCLOAK_SERVER_URL=http://core-keycloak:8080
+      - KEYCLOAK_REALM=spoton-uat
+      - KEYCLOAK_CLIENT_ID=customer-uat-portal
+      - KEYCLOAK_CLIENT_SECRET_FILE=/run/secrets/keycloak_secret_uat
+      - KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
+      - KEYCLOAK_ADMIN_USERNAME=admin
+      - KEYCLOAK_ADMIN_PASSWORD_FILE=/run/secrets/keycloak_admin_password
+      - CORS_ALLOWED_ORIGINS=https://uat.spoton.co.nz,https://uat.portal.spoton.co.nz,https://uat.staff.spoton.co.nz,http://localhost:3000,https://localhost:3000,http://127.0.0.1:3000,https://127.0.0.1:3000
+      - REDIS_URL=redis://redis:6379/1
+    secrets:
+      - django_secret_uat
+      - db_password_uat
+      - keycloak_secret_uat
+      - keycloak_admin_password
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             gunicorn utilitybyte.wsgi:application --bind 0.0.0.0:8000 --workers 2"
+
+secrets:
+  django_secret_uat:
+    external: true
+  db_password_uat:
+    external: true
+  keycloak_secret_uat:
+    external: true
+  keycloak_admin_password:
+    external: true
+
+networks:
+  edge_net:
+    external: true
+    name: edge_net

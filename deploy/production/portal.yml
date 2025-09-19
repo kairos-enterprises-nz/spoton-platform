@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  spoton-portal-live:
+    image: ghcr.io/your-org/spoton-platform-portal:${IMAGE_TAG:-latest}
+    networks:
+      - edge_net
+    expose:
+      - "80"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_BASE_URL=https://api.spoton.co.nz
+      - VITE_WEB_URL=https://spoton.co.nz
+      - VITE_PORTAL_URL=https://portal.spoton.co.nz
+      - VITE_STAFF_URL=https://staff.spoton.co.nz
+      - VITE_KEYCLOAK_URL=https://auth.spoton.co.nz
+      - VITE_KEYCLOAK_REALM=spoton-prod
+      - VITE_KEYCLOAK_CLIENT_ID=customer-live-portal
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+      placement:
+        max_replicas_per_node: 1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  edge_net:
+    external: true
+    name: edge_net
