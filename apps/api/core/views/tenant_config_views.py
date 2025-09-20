@@ -210,7 +210,7 @@ def _get_redirect_uris(environment, domain):
     if environment == 'live':
         return [
             'https://portal.spoton.co.nz/*',
-            'https://live.spoton.co.nz/*',
+            'https://spoton.co.nz/*',
             f'https://{domain}/*' if domain != 'portal.spoton.co.nz' else 'https://portal.spoton.co.nz/*'
         ]
     else:
@@ -227,7 +227,7 @@ def _get_web_origins(environment, domain):
     if environment == 'live':
         return [
             'https://portal.spoton.co.nz',
-            'https://live.spoton.co.nz',
+            'https://spoton.co.nz',
             f'https://{domain}' if domain != 'portal.spoton.co.nz' else 'https://portal.spoton.co.nz'
         ]
     else:

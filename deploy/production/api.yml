@@ -13,7 +13,7 @@ services:
       - DB_NAME=spoton_live
       - DB_USER=spoton_live_user
       - DB_PASSWORD_FILE=/run/secrets/db_password_live
-      - DB_HOST=spoton-live-db
+      - DB_HOST=tasks.core-admin-postgres
       - DB_PORT=5432
       - KEYCLOAK_SERVER_URL=https://auth.spoton.co.nz
       - KEYCLOAK_REALM=spoton-prod
@@ -24,10 +24,10 @@ services:
       - KEYCLOAK_ADMIN_PASSWORD_FILE=/run/secrets/keycloak_admin_password
       - CORS_ALLOWED_ORIGINS=https://spoton.co.nz,https://portal.spoton.co.nz,https://staff.spoton.co.nz
       - REDIS_URL=redis://redis:6379/0
-    # secrets:
-    #   - db_password_live
-    #   - keycloak_secret_live
-    #   - keycloak_admin_password
+    secrets:
+      - db_password_live
+      - keycloak_secret_live
+      - keycloak_admin_password
     deploy:
       replicas: 2
       restart_policy:
@@ -53,13 +53,13 @@ services:
              python manage.py migrate &&
              gunicorn utilitybyte.wsgi:application --bind 0.0.0.0:8000 --workers 3"
 
-# secrets:
-#   db_password_live:
-#     external: true
-#   keycloak_secret_live:
-#     external: true
-#   keycloak_admin_password:
-#     external: true
+secrets:
+  db_password_live:
+    external: true
+  keycloak_secret_live:
+    external: true
+  keycloak_admin_password:
+    external: true
 
 networks:
   edge_net:

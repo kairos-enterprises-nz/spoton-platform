@@ -24,7 +24,7 @@ class RealmDetectionMiddleware(MiddlewareMixin):
         'staff.spoton.co.nz': 'prod',
         
         # Live domains (alias for prod)
-        'live.spoton.co.nz': 'prod',
+        'spoton.co.nz': 'prod',
         
         # Staff domains (use staff realm for admin access)
         'staff.spoton.co.nz': 'staff',
@@ -54,7 +54,7 @@ class RealmDetectionMiddleware(MiddlewareMixin):
             realm = 'staff'
         elif 'uat' in host:
             realm = 'uat'
-        elif host in ['api.spoton.co.nz', 'portal.spoton.co.nz', 'live.spoton.co.nz']:
+        elif host in ['api.spoton.co.nz', 'portal.spoton.co.nz', 'spoton.co.nz']:
             realm = 'prod'
         
         # Set realm in request for use by authentication backends

@@ -31,7 +31,7 @@ def get_base_urls():
     
     if env == 'live':
         return {
-            'web': 'https://live.spoton.co.nz',
+            'web': 'https://spoton.co.nz',
             'portal': 'https://portal.spoton.co.nz',
             'staff': 'https://staff.spoton.co.nz',
             'api': 'https://api.spoton.co.nz',

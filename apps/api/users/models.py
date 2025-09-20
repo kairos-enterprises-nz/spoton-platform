@@ -169,7 +169,7 @@ class Tenant(models.Model):
             return None
         realm = self.get_realm_for_environment(environment)
         if environment == 'live':
-            redirect_uri = 'https://live.spoton.co.nz/api/auth/keycloak/callback/'
+            redirect_uri = 'https://spoton.co.nz/api/auth/keycloak/callback/'
         else:
             redirect_uri = 'https://uat.spoton.co.nz/api/auth/keycloak/callback/'
         

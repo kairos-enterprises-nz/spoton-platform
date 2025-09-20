@@ -10,7 +10,7 @@ const debugKeyEnabled = urlParams.get('show') === 'true';
 
 // Detect environment based on current domain
 const currentDomain = window.location.hostname;
-const isLiveDomain = currentDomain === 'live.spoton.co.nz' || 
+const isLiveDomain = currentDomain === 'spoton.co.nz' || 
                      currentDomain === 'portal.spoton.co.nz' || 
                      currentDomain === 'staff.spoton.co.nz';
 const isUATDomain = currentDomain.includes('uat.') || 

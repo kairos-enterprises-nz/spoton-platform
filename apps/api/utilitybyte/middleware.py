@@ -124,7 +124,7 @@ class TenantAwareMiddleware(MiddlewareMixin):
             
             if 'uat.' in host or 'localhost' in host or host.startswith('192.') or host.startswith('172.'):
                 environment = 'uat'
-            elif any(domain in host for domain in ['live.spoton.co.nz', 'portal.spoton.co.nz', 'staff.spoton.co.nz', 'api.spoton.co.nz']):
+            elif any(domain in host for domain in ['spoton.co.nz', 'portal.spoton.co.nz', 'staff.spoton.co.nz', 'api.spoton.co.nz']):
                 environment = 'live'
             else:
                 environment = getattr(settings, 'ENVIRONMENT', 'development')

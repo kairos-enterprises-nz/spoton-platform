@@ -129,7 +129,7 @@ class SocialAuthFramework:
     def get_keycloak_login_url(environment):
         """Get the Keycloak login URL for the environment"""
         if environment == 'live':
-            return "https://live.spoton.co.nz/api/auth/keycloak/login/"
+            return "https://spoton.co.nz/api/auth/keycloak/login/"
         else:
             return "https://uat.spoton.co.nz/api/auth/keycloak/login/"
     

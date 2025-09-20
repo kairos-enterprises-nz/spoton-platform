@@ -77,7 +77,7 @@ ENVIRONMENT_CONFIG = {
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool)
-ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='localhost,127.0.0.1,backend,*.spoton.co.nz,uat.spoton.co.nz,live.spoton.co.nz,uat.portal.spoton.co.nz,portal.spoton.co.nz,uat.staff.spoton.co.nz,staff.spoton.co.nz,uat.api.spoton.co.nz,api.spoton.co.nz', cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='localhost,127.0.0.1,backend,*.spoton.co.nz,uat.spoton.co.nz,spoton.co.nz,uat.portal.spoton.co.nz,portal.spoton.co.nz,uat.staff.spoton.co.nz,staff.spoton.co.nz,uat.api.spoton.co.nz,api.spoton.co.nz', cast=lambda v: [s.strip() for s in v.split(',')])
 
 # 🔐 Cookie flags
 if DEBUG:

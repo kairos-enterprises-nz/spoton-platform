@@ -356,7 +356,7 @@ class ClientBasedTenantMiddleware(MiddlewareMixin):
         """Get environment from host"""
         if 'uat.' in host or 'localhost' in host or host.startswith('192.') or host.startswith('172.'):
             return 'uat'
-        elif any(domain in host for domain in ['live.spoton.co.nz', 'portal.spoton.co.nz', 'staff.spoton.co.nz', 'api.spoton.co.nz']):
+        elif any(domain in host for domain in ['spoton.co.nz', 'portal.spoton.co.nz', 'staff.spoton.co.nz', 'api.spoton.co.nz']):
             return 'live'
         else:
             return getattr(settings, 'ENVIRONMENT', 'development')
