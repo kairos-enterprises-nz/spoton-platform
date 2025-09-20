@@ -21,14 +21,20 @@ services:
       restart_policy:
         condition: any
         delay: 5s
-        max_attempts: 3
+        max_attempts: 0
       update_config:
         parallelism: 1
         delay: 10s
         failure_action: rollback
+        order: start-first
+        monitor: 30s
       rollback_config:
         parallelism: 1
         delay: 10s
+        failure_action: pause
+        monitor: 30s
+        order: stop-first
+      placement: {}
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/"]
       interval: 30s
