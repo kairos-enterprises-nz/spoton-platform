@@ -18,19 +18,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Determine environment
-        id: env
+      - name: Generate image tag
+        id: tag
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "environment=production" >> $GITHUB_OUTPUT
-            echo "image_tag=main-${{ github.sha }}" >> $GITHUB_OUTPUT
-            echo "service_name=spoton-portal-live" >> $GITHUB_OUTPUT
-          else
-            echo "environment=uat" >> $GITHUB_OUTPUT
-            echo "image_tag=uat-${{ github.sha }}" >> $GITHUB_OUTPUT
-            echo "service_name=spoton-portal-uat" >> $GITHUB_OUTPUT
-          fi
-          echo "short_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+          BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///g')
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          IMAGE_TAG="${BRANCH_NAME}-${SHORT_SHA}"
+          echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
         
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -48,8 +44,8 @@ jobs:
           context: ./apps/portal-web
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/spoton-platform-portal:${{ steps.env.outputs.image_tag }}
-            ghcr.io/${{ github.repository_owner }}/spoton-platform-portal:${{ steps.env.outputs.environment }}-latest
+            ghcr.io/${{ github.repository_owner }}/spoton-platform-portal:${{ steps.tag.outputs.image_tag }}
+            ghcr.io/${{ github.repository_owner }}/spoton-platform-portal:${{ steps.tag.outputs.branch_name }}-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           
@@ -57,9 +53,9 @@ jobs:
         run: |
           echo "🚀 SpotOn Portal Deployment Complete!"
           echo ""
-          echo "📦 Image: ghcr.io/${{ github.repository_owner }}/spoton-platform-portal:${{ steps.env.outputs.image_tag }}"
-          echo "🌿 Environment: ${{ steps.env.outputs.environment }}"
-          echo "🔖 Tag: ${{ steps.env.outputs.image_tag }}"
+          echo "📦 Image: ghcr.io/${{ github.repository_owner }}/spoton-platform-portal:${{ steps.tag.outputs.image_tag }}"
+          echo "🌿 Branch: ${{ steps.tag.outputs.branch_name }}"
+          echo "🔖 Tag: ${{ steps.tag.outputs.image_tag }}"
           echo ""
           echo "⚡ Portainer will automatically deploy this image via GitOps"
           echo "🔄 Expected in: ~5 minutes (Portainer polling interval)"
