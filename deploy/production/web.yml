@@ -17,7 +17,7 @@ services:
       - VITE_KEYCLOAK_REALM=spoton-prod
       - VITE_KEYCLOAK_CLIENT_ID=customer-live-portal
     deploy:
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: any
         delay: 5s
@@ -35,9 +35,8 @@ services:
         monitor: 30s
         order: stop-first
       placement:
-        max_replicas_per_node: 1
-        preferences:
-          - spread: node.id
+        constraints:
+          - node.platform.arch == amd64
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1/health"]
       interval: 30s
