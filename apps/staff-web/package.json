@@ -1,5 +1,6 @@
 {
   "name": "@spoton/staff-web",
+  "description": "SpotOn Staff Web Application - Force Build Trigger",
   "private": true,
   "version": "0.0.0",
   "type": "module",
