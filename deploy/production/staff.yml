@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   spoton-live-staff-web:
-    image: ghcr.io/kairos-enterprises-nz/spoton-platform-staff:main-5c858160ffadb3ef4480f3162162be08656abe3d
+    image: ghcr.io/kairos-enterprises-nz/spoton-platform-staff:${IMAGE_TAG:-main-latest}
     networks:
       - edge_net
     expose:
@@ -38,9 +38,7 @@ services:
         failure_action: pause
         monitor: 30s
         order: stop-first
-      placement:
-        constraints:
-          - node.platform.arch == amd64
+      placement: {}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1/health"]
       interval: 30s

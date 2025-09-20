@@ -41,9 +41,7 @@ services:
       rollback_config:
         parallelism: 1
         delay: 10s
-      placement:
-        constraints:
-          - node.platform.arch == amd64
+      placement: {}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
       interval: 30s
