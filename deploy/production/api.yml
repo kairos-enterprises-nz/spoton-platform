@@ -24,10 +24,10 @@ services:
       - KEYCLOAK_ADMIN_PASSWORD_FILE=/run/secrets/keycloak_admin_password
       - CORS_ALLOWED_ORIGINS=https://spoton.co.nz,https://portal.spoton.co.nz,https://staff.spoton.co.nz
       - REDIS_URL=redis://redis:6379/0
-    secrets:
-      - db_password_live
-      - keycloak_secret_live
-      - keycloak_admin_password
+    # secrets:
+    #   - db_password_live
+    #   - keycloak_secret_live
+    #   - keycloak_admin_password
     deploy:
       replicas: 1
       restart_policy:
@@ -43,7 +43,7 @@ services:
         delay: 10s
       placement: {}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/health/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -53,13 +53,13 @@ services:
              python manage.py migrate &&
              gunicorn utilitybyte.wsgi:application --bind 0.0.0.0:8000 --workers 3"
 
-secrets:
-  db_password_live:
-    external: true
-  keycloak_secret_live:
-    external: true
-  keycloak_admin_password:
-    external: true
+# secrets:
+#   db_password_live:
+#     external: true
+#   keycloak_secret_live:
+#     external: true
+#   keycloak_admin_password:
+#     external: true
 
 networks:
   edge_net:

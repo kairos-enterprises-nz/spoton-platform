@@ -26,10 +26,6 @@ services:
         parallelism: 1
         delay: 10s
         failure_action: rollback
-      update_config:
-        parallelism: 1
-        delay: 10s
-        failure_action: rollback
         order: start-first
         monitor: 30s
       rollback_config:
