@@ -182,4 +182,4 @@ function App() {
   );
 }
 
-export default App; // Trigger build 3
+export default App; // Trigger build 3 - Fix missing GHCR image

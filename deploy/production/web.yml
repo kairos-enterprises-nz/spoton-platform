@@ -5,7 +5,7 @@ services:
     image: ghcr.io/kairos-enterprises-nz/spoton-platform-web:${IMAGE_TAG:-main-latest}
     networks:
       - edge_net
-    expose:
+    ports:
       - "80"
     environment:
       - NODE_ENV=production
@@ -36,7 +36,7 @@ services:
         order: stop-first
       placement: {}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
       interval: 30s
       timeout: 10s
       retries: 3
