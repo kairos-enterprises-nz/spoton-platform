@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   spoton-live-api:
-    image: ghcr.io/kairos-enterprises-nz/spoton-platform-api:main-4e6a3782b5b9a6687e2e10af75ef8c8b7c2b6586
+    image: ghcr.io/kairos-enterprises-nz/spoton-platform-api:${IMAGE_TAG:-main-latest}
     networks:
       - edge_net
     expose:
@@ -29,7 +29,7 @@ services:
       - keycloak_secret_live
       - keycloak_admin_password
     deploy:
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: any
         delay: 5s
@@ -42,7 +42,8 @@ services:
         parallelism: 1
         delay: 10s
       placement:
-        max_replicas_per_node: 1
+        constraints:
+          - node.platform.arch == amd64
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
       interval: 30s
