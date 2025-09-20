@@ -5,7 +5,7 @@ services:
     image: ghcr.io/kairos-enterprises-nz/spoton-platform-staff:${IMAGE_TAG:-main-latest}
     networks:
       - edge_net
-    ports:
+    expose:
       - "80"
     environment:
       - NODE_ENV=production
