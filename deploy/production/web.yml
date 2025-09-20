@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   spoton-live-web:
-    image: ghcr.io/kairos-enterprises-nz/spoton-platform-web:${IMAGE_TAG:-main-latest}
+    image: ghcr.io/kairos-enterprises-nz/spoton-platform-web:main-0ed5cae
     networks:
       - edge_net
     ports:
