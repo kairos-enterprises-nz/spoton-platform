@@ -41,7 +41,9 @@ services:
       rollback_config:
         parallelism: 1
         delay: 10s
-      placement: {}
+      placement:
+        constraints:
+          - node.hostname != kaen0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/health/"]
       interval: 30s
