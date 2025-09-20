@@ -1,4 +1,4 @@
-name: Deploy SpotOn Portal
+name: 2. Deploy SpotOn Portal
 
 on:
   push:

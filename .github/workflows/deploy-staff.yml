@@ -1,4 +1,4 @@
-name: Deploy SpotOn Staff
+name: 3. Deploy SpotOn Staff
 
 on:
   push:

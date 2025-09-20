@@ -1,4 +1,4 @@
-name: Deploy SpotOn Web
+name: 1. Deploy SpotOn Web
 
 on:
   push:
