@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   spoton-live-staff-web:
-    image: ghcr.io/kairos-enterprises-nz/spoton-platform-staff:${IMAGE_TAG:-main-latest}
+    image: ghcr.io/kairos-enterprises-nz/spoton-platform-staff:main-5c858160ffadb3ef4480f3162162be08656abe3d
     networks:
       - edge_net
     expose:
