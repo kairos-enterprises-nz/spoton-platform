@@ -20,13 +20,13 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 RUN mkdir -p logs
 
-# Copy and install Python dependencies from correct path when building from git root
-COPY apps/api/requirements.txt apps/api/requirements-dev.txt ./
+# Copy and install Python dependencies
+COPY requirements.txt requirements-dev.txt ./
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements-dev.txt
 
-# Copy the rest of the application code from correct path when building from git root
-COPY apps/api/ .
+# Copy the rest of the application code
+COPY . .
 
 # Expose the port the app runs on
 EXPOSE 8000

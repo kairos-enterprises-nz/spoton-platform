@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   spoton-staff-uat:
-    image: ghcr.io/your-org/spoton-platform-staff:${IMAGE_TAG:-uat-latest}
+    image: ghcr.io/kairos-enterprises-nz/spoton-platform-staff:${IMAGE_TAG:-uat-latest}
     networks:
       - edge_net
     expose:
@@ -30,7 +30,7 @@ services:
         parallelism: 1
         delay: 10s
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1/health"]
       interval: 30s
       timeout: 10s
       retries: 3
