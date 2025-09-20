@@ -286,4 +286,4 @@ function App() {
   );
 }
 
-export default App; // Trigger build 4 - Force Portal GHCR image creation
+export default App; // Trigger build 5 - Fix missing Portal image for production deployment
