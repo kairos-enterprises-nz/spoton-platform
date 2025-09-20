@@ -17,11 +17,11 @@ services:
       - VITE_KEYCLOAK_REALM=spoton-prod
       - VITE_KEYCLOAK_CLIENT_ID=customer-live-portal
     deploy:
-      replicas: 2
+      replicas: 3
       restart_policy:
         condition: any
         delay: 5s
-        max_attempts: 3
+        max_attempts: 0
       update_config:
         parallelism: 1
         delay: 10s

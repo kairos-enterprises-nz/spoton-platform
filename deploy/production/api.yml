@@ -29,11 +29,11 @@ services:
     #   - keycloak_secret_live
     #   - keycloak_admin_password
     deploy:
-      replicas: 1
+      replicas: 2
       restart_policy:
         condition: any
         delay: 5s
-        max_attempts: 3
+        max_attempts: 0
       update_config:
         parallelism: 1
         delay: 10s
