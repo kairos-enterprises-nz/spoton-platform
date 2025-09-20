@@ -13,7 +13,7 @@ services:
       - DB_NAME=spoton_live
       - DB_USER=spoton_live_user
       - DB_PASSWORD_FILE=/run/secrets/db_password_live
-      - DB_HOST=tasks.core-admin-postgres
+      - DB_HOST=10.77.0.2
       - DB_PORT=5432
       - KEYCLOAK_SERVER_URL=https://auth.spoton.co.nz
       - KEYCLOAK_REALM=spoton-prod

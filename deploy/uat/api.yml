@@ -15,8 +15,8 @@ services:
       - DB_NAME=spoton_uat
       - DB_USER=spoton_uat_user
       - DB_PASSWORD_FILE=/run/secrets/db_password_uat
-      - DB_HOST=spoton-uat-db
-      - DB_PORT=5432
+      - DB_HOST=10.77.0.2
+      - DB_PORT=5434
       - KEYCLOAK_SERVER_URL=http://core-keycloak:8080
       - KEYCLOAK_REALM=spoton-uat
       - KEYCLOAK_CLIENT_ID=customer-uat-portal
