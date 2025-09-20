@@ -1,5 +1,5 @@
 Django==4.2.5
-# Force build trigger for API deployment
+# PERMISSIONS FIXED - API deployment should work now
 psycopg2-binary==2.9.7
 django-tenants==3.5.0
 apache-airflow==2.10.3
