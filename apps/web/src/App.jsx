@@ -212,4 +212,4 @@ function App() {
   );
 }
 
-export default App;<- Image: First GHCR build Sat Sep 20 11:58:52 AM NZST 2025 -->
+export default App;
