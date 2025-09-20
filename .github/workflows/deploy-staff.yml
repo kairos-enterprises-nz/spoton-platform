@@ -50,18 +50,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           
-      - name: Update deployment file
+      - name: Deployment Summary
         run: |
-          sed -i "s|\${IMAGE_TAG:-.*}|${{ steps.env.outputs.image_tag }}|" deploy/${{ steps.env.outputs.environment }}/staff.yml
-          
-      - name: Commit deployment update
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add deploy/${{ steps.env.outputs.environment }}/staff.yml
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Deploy Staff ${{ steps.env.outputs.environment }} ${{ steps.env.outputs.short_sha }}"
-            git push
-          fi
+          echo "🚀 SpotOn Staff Deployment Complete!"
+          echo ""
+          echo "📦 Image: ghcr.io/${{ github.repository_owner }}/spoton-platform-staff:${{ steps.env.outputs.image_tag }}"
+          echo "🌿 Environment: ${{ steps.env.outputs.environment }}"
+          echo "🔖 Tag: ${{ steps.env.outputs.image_tag }}"
+          echo ""
+          echo "⚡ Portainer will automatically deploy this image via GitOps"
+          echo "🔄 Expected in: ~5 minutes (Portainer polling interval)"
