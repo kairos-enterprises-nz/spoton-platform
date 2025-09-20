@@ -1,4 +1,4 @@
-name: 4. Deploy SpotOn API
+name: 04. Deploy SpotOn API (Production)
 
 on:
   push:

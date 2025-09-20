@@ -1,11 +1,11 @@
-name: 01. Deploy SpotOn Web (Production)
+name: 14. Deploy SpotOn API (UAT)
 
 on:
   push:
-    branches: [main, uat]
+    branches: [uat]
     paths:
-      - 'apps/web/**'
-      - '.github/workflows/deploy-web.yml'
+      - 'apps/api/**'
+      - '.github/workflows/deploy-api-uat.yml'
 
 jobs:
   deploy:
@@ -41,22 +41,19 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./apps/web
-          file: ./apps/web/Dockerfile
+          context: ./apps/api
+          file: ./apps/api/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/spoton-platform-web:${{ steps.tag.outputs.image_tag }}
-            ghcr.io/${{ github.repository_owner }}/spoton-platform-web:${{ steps.tag.outputs.branch_name }}-latest
+            ghcr.io/${{ github.repository_owner }}/spoton-platform-api:${{ steps.tag.outputs.image_tag }}
+            ghcr.io/${{ github.repository_owner }}/spoton-platform-api:${{ steps.tag.outputs.branch_name }}-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Deployment Summary
         run: |
-          echo "🚀 SpotOn Web Deployment Complete!"
+          echo "🚀 SpotOn API UAT Deployment Complete!"
           echo ""
-          echo "📦 Image: ghcr.io/${{ github.repository_owner }}/spoton-platform-web:${{ steps.tag.outputs.image_tag }}"
+          echo "📦 Image: ghcr.io/${{ github.repository_owner }}/spoton-platform-api:${{ steps.tag.outputs.image_tag }}"
           echo "🌿 Branch: ${{ steps.tag.outputs.branch_name }}"
           echo "🔖 Tag: ${{ steps.tag.outputs.image_tag }}"
-          echo ""
-          echo "⚡ Portainer will automatically deploy this image via GitOps"
-          echo "🔄 Expected in: ~5 minutes (Portainer polling interval)"
